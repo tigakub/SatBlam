@@ -6,23 +6,27 @@
 
 using namespace sb;
 
-UDP::UDP(const string &iRemoteHost, uint16_t iRemotePort, MessageFunctor &iRecvFunctor)
-: sock(0), sockFlags(MSG_DONTWAIT),
+UDP::UDP(MessageFunctor &iRecvFunctor)
+: sock(0),
+  // sockFlags(0),
+  sockFlags(MSG_DONTWAIT),
   sendSem(),
   sendMutex(), sendQueue(),
   recvSem(),
   recvMutex(), recvQueue(),
   recvFunctor(iRecvFunctor),
   alive(true),
-  sendThread(nullptr), recvThread(nullptr) {
+  sendThread(nullptr), recvThread(nullptr) { }
+
+UDP::~UDP() {
+    stop();
+}
+
+void UDP::setRemote(const string &iRemoteHost, uint16_t iRemotePort) {
     memset((char *) &remote, 0, sizeof(remote));
     remote.sin_family = AF_INET;
     remote.sin_addr.s_addr = inet_addr(iRemoteHost.c_str());
     remote.sin_port = htons(iRemotePort);
-}
-
-UDP::~UDP() {
-    stop();
 }
 
 bool UDP::start(uint16_t iPort) {

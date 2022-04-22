@@ -32,8 +32,10 @@ namespace sb {
             thread *sendThread, *recvThread;
 
         public:
-            UDP(const string &iRemoteHost, uint16_t iRemotePort, MessageFunctor &iRecvFunctor);
+            UDP(MessageFunctor &iRecvFunctor);
             virtual ~UDP();
+            
+            void setRemote(const string &iRemoteHost, uint16_t iRemotePort);
 
             bool start(uint16_t iPort);
             void stop();

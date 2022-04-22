@@ -3,6 +3,7 @@
 #include "UDP.hpp"
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -16,13 +17,31 @@ class UDPApp : public App {
         mutex procMutex;
         MessageQueue procQueue;
         thread *procThread;
+        bool sender;
 
     public:
-        UDPApp(const string &iRemoteHost, uint16_t iRemotePort)
+        UDPApp(const vector<string> &iArgs)
         : App(),
           recvFunctor(*this, &UDPApp::recvMessage),
-          udp(iRemoteHost, iRemotePort, recvFunctor),
-          procSem(), procThread(nullptr) { }
+          udp(recvFunctor),
+          procSem(), procThread(nullptr),
+          sender(false) {
+            string host("127.0.0.1");
+            uint16_t port = 3060;
+            for(int i = 0; i < iArgs.size(); i++) {
+                if(iArgs[i] == "-h" && (iArgs.size() > i+2)) {
+                    cout << "Remote: " << iArgs[i+1] << ":" << iArgs[i+2] << endl;
+                    host = iArgs[i+1];
+                    port = stoi(iArgs[i+2]);
+                    i += 2;
+                }
+                if(iArgs[i] == "-s") {
+                    cout << "Sender" << endl;
+                    sender = true;
+                }
+            }
+            udp.setRemote(host, port);
+        }
 
         virtual void setUp() {
             cout << "Sarting processing thread" << endl;
@@ -37,8 +56,10 @@ class UDPApp : public App {
         }
 
         virtual void mainLoop() {
-            Message *msg = new Message(1600);
-            udp.queueForSend(msg);
+            if(sender) {
+                Message *msg = new Message(1600);
+                udp.queueForSend(msg);
+            }
         }
 
         virtual void tearDown() {
@@ -79,7 +100,11 @@ class UDPApp : public App {
 };
 
 int main(int argc, char **argv) {
-    UDPApp app(string(argv[1]), 3060);
+    vector<string> args;
+    for(int i = 1; i < argc; i++) {
+        args.push_back(string(argv[i]));
+    }
+    UDPApp app(args);
 
     app.run();
 
