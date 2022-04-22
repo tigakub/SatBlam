@@ -25,16 +25,20 @@ class UDPApp : public App {
           procSem(), procThread(nullptr) { }
 
         virtual void setUp() {
+            cout << "Sarting processing thread" << endl;
+            procThread = new thread(UDPApp::process, this);
+            
             cout << "Starting udp" << endl;
             for(int i = 0; i < 5; i++) {
                 udp.queueForRecv(new Message(1600));
             }
-            procThread = new thread(UDPApp::process, this);
             
             udp.start(3060);
         }
 
         virtual void mainLoop() {
+            Message *msg = new Message(1600);
+            udp.queueForSend(msg);
         }
 
         virtual void tearDown() {
