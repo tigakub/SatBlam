@@ -6,17 +6,10 @@
 
 using namespace sb;
 
-UDP::UDP(MessageFunctor &iRecvFunctor)
+UDP::UDP()
 : sock(0),
   // sockFlags(0),
-  sockFlags(MSG_DONTWAIT),
-  sendSem(),
-  sendMutex(), sendQueue(),
-  recvSem(),
-  recvMutex(), recvQueue(),
-  recvFunctor(iRecvFunctor),
-  alive(true),
-  sendThread(nullptr), recvThread(nullptr) { }
+  sockFlags(MSG_DONTWAIT) { }
 
 UDP::~UDP() {
     stop();
@@ -50,26 +43,10 @@ bool UDP::start() {
         return false;
     }
 
-    sendThread = new thread(UDP::sendProc, this);
-    recvThread = new thread(UDP::recvProc, this);
-
     return true;
 }
 
 void UDP::stop() {
-    alive = false;
-    if(sendThread) {
-        sendSem.signal();
-        sendThread->join();
-        delete sendThread;
-        sendThread = nullptr;
-    }
-    if(recvThread) {
-        recvSem.signal();
-        recvThread->join();
-        delete recvThread;
-        recvThread = nullptr;
-    }
     if(sock) close(sock);
     sock = 0;
 }
@@ -84,87 +61,4 @@ ssize_t UDP::recv(void *iBuf, size_t iLen) {
     struct sockaddr *castRemote = (struct sockaddr *) &remote;
     socklen_t addrLen = sizeof(remote);
     return recvfrom(sock, iBuf, iLen, sockFlags, castRemote, &addrLen) >= 0;
-}
-
-void UDP::sendLoop() {
-    while(alive) {
-        sendSem.wait();
-        if(sendQueue.size()) {
-            MessagePtr currentMsg(deqSendMsg());
-            Message &msg = *currentMsg;
-            
-            bool retry = false;
-            do {
-                switch(send(msg.buf, msg.length)) {
-                    case EWOULDBLOCK:
-                        retry = true;
-                        break;
-                    default:
-                        retry = false;
-                }
-            } while(retry && alive);
-        }
-    }
-}
-
-void UDP::recvLoop() {
-    while(alive) {
-        recvSem.wait();
-        if(recvQueue.size()) {
-            MessagePtr currentMsg(deqRecvMsg());
-            Message &msg = *currentMsg;
-
-            bool retry = false;
-            do {
-                ssize_t byteCount = recv(msg.buf, msg.length);
-                switch(byteCount) {
-                    case EWOULDBLOCK:
-                        retry = true;
-                        break;
-                    default:
-                        if(byteCount > 0) {
-                            recvFunctor(currentMsg);
-                        } else if(byteCount < 0) {
-                            alive = false;
-                        } else {
-                            retry = true;
-                        }
-                }
-            } while(retry && alive);
-        }
-    }
-}
-
-void UDP::queueForSend(Message *iMsg) {
-    Grab g(sendMutex);
-    sendQueue.push_back(MessagePtr(iMsg));
-    sendSem.signal();
-}
-
-void UDP::queueForRecv(Message *iMsg) {
-    Grab g(recvMutex);
-    recvQueue.push_back(MessagePtr(iMsg));
-    recvSem.signal();
-}
-
-MessagePtr UDP::deqSendMsg() {
-    Grab g(sendMutex);
-    MessagePtr ptr(sendQueue.front());
-    sendQueue.pop_front();
-    return ptr;
-}
-
-MessagePtr UDP::deqRecvMsg() {
-    Grab g(recvMutex);
-    MessagePtr ptr(recvQueue.front());
-    recvQueue.pop_front();
-    return ptr;
-}
-
-void UDP::sendProc(UDP *iSelf) {
-    iSelf->sendLoop();
-}
-
-void UDP::recvProc(UDP *iSelf) {
-    iSelf->recvLoop();
 }

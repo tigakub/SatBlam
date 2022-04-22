@@ -12,6 +12,7 @@
 using namespace std;
 
 namespace sb {
+
     class UDP {
         protected:
             int sock;
@@ -19,44 +20,20 @@ namespace sb {
             struct sockaddr_in local;
             struct sockaddr_in remote;
             
-            Semaphore sendSem;
-            mutex sendMutex;
-            MessageQueue sendQueue;
-            Semaphore recvSem;
-            mutex recvMutex;
-            MessageQueue recvQueue;
-
-            MessageFunctor &recvFunctor;
-
-            atomic_bool alive;
-
-            thread *sendThread, *recvThread;
-
         public:
-            UDP(MessageFunctor &iRecvFunctor);
+            UDP();
             virtual ~UDP();
             
             void setLocal(const string &iLocalHost, uint16_t iLocalPort);
             void setRemote(const string &iRemoteHost, uint16_t iRemotePort);
 
-            bool start();
-            void stop();
+            virtual bool start();
+            virtual void stop();
 
             ssize_t send(void *iBuf, size_t iLen);
             ssize_t recv(void *iBuf, size_t iLen);
-
-            void sendLoop();
-            void recvLoop();
-
-            void queueForSend(Message *iMsg);
-            void queueForRecv(Message *iMsg);
-
-        protected:
-            MessagePtr deqSendMsg();
-            MessagePtr deqRecvMsg();
-            static void sendProc(UDP *iSelf);
-            static void recvProc(UDP *iSelf);
     };
+    
 }
 
 #endif

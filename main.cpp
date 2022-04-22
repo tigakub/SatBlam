@@ -1,6 +1,7 @@
 #include "App.hpp"
 #include "Message.hpp"
 #include "UDP.hpp"
+#include "UDPMessenger.hpp"
 
 #include <iostream>
 #include <vector>
@@ -13,6 +14,7 @@ class UDPApp : public App {
     protected:
         MessageFunctorT<UDPApp> recvFunctor;
         UDP udp;
+        UDPMessenger messenger;
         Semaphore procSem;
         mutex procMutex;
         MessageQueue procQueue;
@@ -24,7 +26,8 @@ class UDPApp : public App {
         UDPApp(const vector<string> &iArgs)
         : App(),
           recvFunctor(*this, &UDPApp::recvMessage),
-          udp(recvFunctor),
+          udp(),
+          messenger(udp, recvFunctor),
           procSem(), procThread(nullptr),
           sender(false) {
             string localHost("127.0.0.1");
@@ -59,7 +62,7 @@ class UDPApp : public App {
             
             cout << "Starting udp" << endl;
             for(int i = 0; i < 5; i++) {
-                udp.queueForRecv(new Message(1600));
+                messenger.queueForRecv(new Message(1600));
             }
             
             udp.start();
@@ -68,7 +71,7 @@ class UDPApp : public App {
         virtual void mainLoop() {
             if(sender) {
                 Message *msg = new Message(sendBuffer, 1600);
-                udp.queueForSend(msg);
+                messenger.queueForSend(msg);
             }
         }
 
@@ -89,7 +92,7 @@ class UDPApp : public App {
                     MessagePtr ptr(procQueue.front());
                     procQueue.pop_front();
                     cout << "Message received" << endl;
-                    udp.queueForRecv((Message *) ptr);
+                    messenger.queueForRecv((Message *) ptr);
                 }
             }
             cout << "Stopping processing thread" << endl;

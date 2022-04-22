@@ -11,6 +11,7 @@ set(SOURCES
     Message.hpp Message.cpp
     SmartPtr.hpp
     UDP.hpp UDP.cpp
+    UDPMessenger.hpp UDPMessenger.cpp
     )
 
 add_executable(SatBlam ${SOURCES})
