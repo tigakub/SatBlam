@@ -84,7 +84,7 @@ void UDP::sendLoop() {
     while(alive) {
         sendSem.wait();
         if(sendQueue.size()) {
-            MessagePtr currentMsg(move(deqSendMsg()));
+            MessagePtr currentMsg(deqSendMsg());
             Message &msg = *currentMsg;
             
             bool retry = false;
@@ -143,14 +143,14 @@ void UDP::queueForRecv(Message *iMsg) {
 
 MessagePtr UDP::deqSendMsg() {
     Grab g(sendMutex);
-    MessagePtr ptr(move(sendQueue.front()));
+    MessagePtr ptr(sendQueue.front());
     sendQueue.pop_front();
     return ptr;
 }
 
 MessagePtr UDP::deqRecvMsg() {
     Grab g(recvMutex);
-    MessagePtr ptr(move(recvQueue.front()));
+    MessagePtr ptr(recvQueue.front());
     recvQueue.pop_front();
     return ptr;
 }
