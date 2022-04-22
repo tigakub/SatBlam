@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/SatBlam.dir/main.cpp.o CMakeFiles/SatBlam.dir/App.cpp.o CMakeFiles/SatBlam.dir/Message.cpp.o CMakeFiles/SatBlam.dir/UDP.cpp.o  -o SatBlam  -lpthread 
