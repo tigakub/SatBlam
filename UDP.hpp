@@ -21,6 +21,7 @@ namespace sb {
             Semaphore sendSem;
             mutex sendMutex;
             MessageQueue sendQueue;
+            Semaphore recvSem;
             mutex recvMutex;
             MessageQueue recvQueue;
 

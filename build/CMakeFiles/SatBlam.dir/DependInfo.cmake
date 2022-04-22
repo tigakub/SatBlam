@@ -1,18 +1,17 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
-  "CXX"
   )
-# The set of files for implicit dependencies of each language:
-set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/tigakub/Documents/Robotics/SatBlam/App.cpp" "/home/tigakub/Documents/Robotics/SatBlam/build/CMakeFiles/SatBlam.dir/App.cpp.o"
-  "/home/tigakub/Documents/Robotics/SatBlam/Message.cpp" "/home/tigakub/Documents/Robotics/SatBlam/build/CMakeFiles/SatBlam.dir/Message.cpp.o"
-  "/home/tigakub/Documents/Robotics/SatBlam/UDP.cpp" "/home/tigakub/Documents/Robotics/SatBlam/build/CMakeFiles/SatBlam.dir/UDP.cpp.o"
-  "/home/tigakub/Documents/Robotics/SatBlam/main.cpp" "/home/tigakub/Documents/Robotics/SatBlam/build/CMakeFiles/SatBlam.dir/main.cpp.o"
-  )
-set(CMAKE_CXX_COMPILER_ID "GNU")
 
-# The include file search paths:
-set(CMAKE_CXX_TARGET_INCLUDE_PATH
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/Users/tigakub/Documents/Robotics/SatBlam/App.cpp" "CMakeFiles/SatBlam.dir/App.cpp.o" "gcc" "CMakeFiles/SatBlam.dir/App.cpp.o.d"
+  "/Users/tigakub/Documents/Robotics/SatBlam/Message.cpp" "CMakeFiles/SatBlam.dir/Message.cpp.o" "gcc" "CMakeFiles/SatBlam.dir/Message.cpp.o.d"
+  "/Users/tigakub/Documents/Robotics/SatBlam/UDP.cpp" "CMakeFiles/SatBlam.dir/UDP.cpp.o" "gcc" "CMakeFiles/SatBlam.dir/UDP.cpp.o.d"
+  "/Users/tigakub/Documents/Robotics/SatBlam/main.cpp" "CMakeFiles/SatBlam.dir/main.cpp.o" "gcc" "CMakeFiles/SatBlam.dir/main.cpp.o.d"
   )
 
 # Targets to which this target links.
