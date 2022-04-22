@@ -40,6 +40,10 @@ class UDPApp : public App {
         virtual void tearDown() {
             cout << "Stopping udp" << endl;
             udp.stop();
+            if(procThread) {
+                procSem.signal();
+                procThread->join();
+            }
         }
         
         void processLoop() {
@@ -50,6 +54,7 @@ class UDPApp : public App {
                 cout << "Message received" << endl;
                 udp.queueForRecv((Message *) ptr);
             }
+            cout << "Stopping processing thread" << endl;
         }
 
         virtual void recvMessage(MessagePtr iMsg) {
