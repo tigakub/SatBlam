@@ -65,7 +65,7 @@ class UDPApp : public App {
                 messenger.queueForRecv(new Message(1600));
             }
             
-            udp.start();
+            messenger.start();
         }
 
         virtual void mainLoop() {
@@ -77,7 +77,7 @@ class UDPApp : public App {
 
         virtual void tearDown() {
             cout << "Stopping udp" << endl;
-            udp.stop();
+            messenger.stop();
             if(procThread) {
                 procSem.signal();
                 procThread->join();

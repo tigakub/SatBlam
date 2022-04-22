@@ -29,8 +29,8 @@ namespace sb {
         public:
             UDPMessenger(UDP &iUDP, MessageFunctor &iRecvFunctor);
             
-            virtual bool start();
-            virtual void stop();
+            bool start();
+            void stop();
 
             void sendLoop();
             void recvLoop();

@@ -27,8 +27,8 @@ namespace sb {
             void setLocal(const string &iLocalHost, uint16_t iLocalPort);
             void setRemote(const string &iRemoteHost, uint16_t iRemotePort);
 
-            virtual bool start();
-            virtual void stop();
+            bool start();
+            void stop();
 
             ssize_t send(void *iBuf, size_t iLen);
             ssize_t recv(void *iBuf, size_t iLen);
