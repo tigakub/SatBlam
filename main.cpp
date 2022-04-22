@@ -40,7 +40,7 @@ class UDPApp : public App {
 };
 
 int main(int argc, char **argv) {
-    UDPApp app("10.0.1.10", 3060);
+    UDPApp app(string(argv[1]), 3060);
 
     app.run();
 
