@@ -22,6 +22,13 @@ UDP::~UDP() {
     stop();
 }
 
+void UDP::setLocal(const string &iLocalHost, uint16_t iLocalPort) {
+    memset((char *) &remote, 0, sizeof(remote));
+    local.sin_family = AF_INET;
+    local.sin_addr.s_addr = inet_addr(iLocalHost.c_str());
+    local.sin_port = htons(iLocalPort);
+}
+
 void UDP::setRemote(const string &iRemoteHost, uint16_t iRemotePort) {
     memset((char *) &remote, 0, sizeof(remote));
     remote.sin_family = AF_INET;
@@ -29,17 +36,12 @@ void UDP::setRemote(const string &iRemoteHost, uint16_t iRemotePort) {
     remote.sin_port = htons(iRemotePort);
 }
 
-bool UDP::start(uint16_t iPort) {
+bool UDP::start() {
     if(sock) return false;
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     if(sock < 0) return false;
 
-    struct sockaddr_in local;
-    memset((char *) &local, 0, sizeof(local));
-    remote.sin_family = AF_INET;
-    remote.sin_addr.s_addr = htonl(INADDR_ANY);
-    remote.sin_port = htons(iPort);
     struct sockaddr *castLocal = (struct sockaddr *) &local;
 
     if(::bind(sock, castLocal, sizeof(local)) < 0) {

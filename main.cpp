@@ -26,13 +26,21 @@ class UDPApp : public App {
           udp(recvFunctor),
           procSem(), procThread(nullptr),
           sender(false) {
-            string host("127.0.0.1");
-            uint16_t port = 3060;
+            string localHost("127.0.0.1");
+            uint16_t localPort = 3060;
+            string remoteHost("127.0.0.1");
+            uint16_t remotePort = 3060;
             for(int i = 0; i < iArgs.size(); i++) {
-                if(iArgs[i] == "-h" && (iArgs.size() > i+2)) {
+                if(iArgs[i] == "-r" && (iArgs.size() > i+2)) {
                     cout << "Remote: " << iArgs[i+1] << ":" << iArgs[i+2] << endl;
-                    host = iArgs[i+1];
-                    port = stoi(iArgs[i+2]);
+                    remoteHost = iArgs[i+1];
+                    remotePort = stoi(iArgs[i+2]);
+                    i += 2;
+                }
+                if(iArgs[i] == "-b" && (iArgs.size() > i+2)) {
+                    cout << "Local: " << iArgs[i+1] << ":" << iArgs[i+2] << endl;
+                    localHost = iArgs[i+1];
+                    localPort = stoi(iArgs[i+2]);
                     i += 2;
                 }
                 if(iArgs[i] == "-s") {
@@ -40,7 +48,8 @@ class UDPApp : public App {
                     sender = true;
                 }
             }
-            udp.setRemote(host, port);
+            udp.setLocal(localHost, localPort);
+            udp.setRemote(remoteHost, remotePort);
         }
 
         virtual void setUp() {
@@ -52,7 +61,7 @@ class UDPApp : public App {
                 udp.queueForRecv(new Message(1600));
             }
             
-            udp.start(3060);
+            udp.start("10.0.1.10", 3060);
         }
 
         virtual void mainLoop() {

@@ -16,6 +16,7 @@ namespace sb {
         protected:
             int sock;
             int sockFlags;
+            struct sockaddr_in local;
             struct sockaddr_in remote;
             
             Semaphore sendSem;
@@ -35,9 +36,10 @@ namespace sb {
             UDP(MessageFunctor &iRecvFunctor);
             virtual ~UDP();
             
+            void setLocal(const string &iLocalHost, uint16_t iLocalPort);
             void setRemote(const string &iRemoteHost, uint16_t iRemotePort);
 
-            bool start(uint16_t iPort);
+            bool start();
             void stop();
 
             ssize_t send(void *iBuf, size_t iLen);
