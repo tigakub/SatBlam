@@ -105,7 +105,7 @@ void UDP::recvLoop() {
     while(alive) {
         recvSem.wait();
         if(recvQueue.size()) {
-            MessagePtr currentMsg(move(deqRecvMsg()));
+            MessagePtr currentMsg(deqRecvMsg());
             Message &msg = *currentMsg;
 
             bool retry = false;
@@ -117,7 +117,7 @@ void UDP::recvLoop() {
                         break;
                     default:
                         if(byteCount > 0) {
-                            recvFunctor(msg);
+                            recvFunctor(currentMsg);
                         } else if(byteCount < 0) {
                             alive = false;
                         } else {

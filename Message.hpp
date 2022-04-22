@@ -34,20 +34,20 @@ namespace sb {
 
     class MessageFunctor {
         public:
-            virtual void operator()(Message &iMsg) = 0;
+            virtual void operator()(MessagePtr iMsg) = 0;
     };
 
     template <class T>
     class MessageFunctorT : public MessageFunctor {
         protected:
             T &object;
-            void (T::*method)(Message&);
+            void (T::*method)(MessagePtr iPtr);
 
         public:
-            MessageFunctorT(T &iObject, void (T::*iMethod)(Message&))
+            MessageFunctorT(T &iObject, void (T::*iMethod)(MessagePtr))
             : object(iObject), method(iMethod) { }
 
-            virtual void operator()(Message &iMsg) {
+            virtual void operator()(MessagePtr iMsg) {
                 (object.*method)(iMsg);
             }
 

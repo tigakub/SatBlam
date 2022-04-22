@@ -92,6 +92,14 @@ namespace sb {
             virtual const T* operator->() const {
                 return (const T*) obj;
             }
+            
+            virtual operator T* () {
+                return (T *) obj;
+            }
+            
+            virtual operator const T* () const {
+                return (const T*) obj;
+            }
     };
 
 }

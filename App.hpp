@@ -1,6 +1,10 @@
 #ifndef __APP_HPP__
 #define __APP_HPP__
 
+#include <atomic>
+
+using namespace std;
+
 namespace sb {
 
     class App {
@@ -16,6 +20,8 @@ namespace sb {
 
             void run();
             void quit();
+            
+            bool timeToQuit();
 
             virtual void setUp();
             virtual void mainLoop();

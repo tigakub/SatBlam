@@ -77,6 +77,10 @@ namespace sb {
     void App::quit() {
         gQuit = true;
     }
+    
+    bool App::timeToQuit() {
+        return gQuit;
+    }
 
     void App::setUp() {
         cout << "Commencing" << endl;
