@@ -61,7 +61,7 @@ class UDPApp : public App {
                 udp.queueForRecv(new Message(1600));
             }
             
-            udp.start("10.0.1.10", 3060);
+            udp.start();
         }
 
         virtual void mainLoop() {
