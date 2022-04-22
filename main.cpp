@@ -18,6 +18,7 @@ class UDPApp : public App {
         MessageQueue procQueue;
         thread *procThread;
         bool sender;
+        uint8_t sendBuffer[1600];
 
     public:
         UDPApp(const vector<string> &iArgs)
@@ -66,7 +67,7 @@ class UDPApp : public App {
 
         virtual void mainLoop() {
             if(sender) {
-                Message *msg = new Message(1600);
+                Message *msg = new Message(sendBuffer, 1600);
                 udp.queueForSend(msg);
             }
         }
