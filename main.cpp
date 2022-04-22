@@ -50,9 +50,12 @@ class UDPApp : public App {
             while(!timeToQuit()) {
                 procSem.wait();
                 Grab g(procMutex);
-                MessagePtr ptr(procQueue.front());
-                cout << "Message received" << endl;
-                udp.queueForRecv((Message *) ptr);
+                if(procQueue.size()) {
+                    MessagePtr ptr(procQueue.front());
+                    procQueue.pop_front();
+                    cout << "Message received" << endl;
+                    udp.queueForRecv((Message *) ptr);
+                }
             }
             cout << "Stopping processing thread" << endl;
         }
