@@ -15,8 +15,8 @@ namespace sb {
             uint32_t length;
             bool noDelete;
 
-            Message(size_t iLen);
-            Message(uint8_t *iBuf, size_t iLen);
+            Message(uint32_t iLen);
+            Message(uint8_t *iBuf, uint32_t iLen);
             Message(Message &&iToMove);
 
             virtual ~Message();

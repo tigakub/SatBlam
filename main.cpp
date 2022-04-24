@@ -2,6 +2,7 @@
 #include "Message.hpp"
 #include "UDP.hpp"
 #include "UDPMessenger.hpp"
+#include "FrameBlaster.hpp"
 
 #include <iostream>
 #include <vector>
@@ -18,7 +19,7 @@ class UDPApp : public App {
         Semaphore procSem;
         mutex procMutex;
         MessageQueue procQueue;
-        thread *procThread;
+        thread procThread;
         bool sender;
         uint8_t sendBuffer[1600];
 
@@ -28,7 +29,7 @@ class UDPApp : public App {
           recvFunctor(*this, &UDPApp::recvMessage),
           udp(),
           messenger(udp, recvFunctor),
-          procSem(), procThread(nullptr),
+          procSem(), procThread(),
           sender(false) {
             string localHost("127.0.0.1");
             uint16_t localPort = 3060;
@@ -58,7 +59,7 @@ class UDPApp : public App {
 
         virtual void setUp() {
             cout << "Sarting processing thread" << endl;
-            procThread = new thread(UDPApp::process, this);
+            procThread = thread(UDPApp::process, this);
             
             cout << "Starting udp" << endl;
             for(int i = 0; i < 5; i++) {
@@ -78,15 +79,15 @@ class UDPApp : public App {
         virtual void tearDown() {
             cout << "Stopping udp" << endl;
             messenger.stop();
-            if(procThread) {
-                procSem.signal();
-                procThread->join();
+            if(procThread.joinable()) {
+                procSem++;
+                procThread.join();
             }
         }
         
         void processLoop() {
             while(!timeToQuit()) {
-                procSem.wait();
+                procSem--;
                 Grab g(procMutex);
                 if(procQueue.size()) {
                     MessagePtr ptr(procQueue.front());
@@ -103,7 +104,7 @@ class UDPApp : public App {
                 Grab g(procMutex);
                 procQueue.push_back(iMsg);
             }
-            procSem.signal();
+            procSem++;
         }
         
     protected:
@@ -112,14 +113,93 @@ class UDPApp : public App {
         }
 };
 
+class FrameBlasterApp : public App, public FrameBlaster {
+    protected:
+        uint16_t *frame;
+        Semaphore throttle;
+        
+    public:
+        FrameBlasterApp(UDP &iUDP, uint16_t *iFrame)
+        : FrameBlaster(iUDP, 640 * sizeof(uint16_t), 400), frame(iFrame) { }
+        
+        virtual void mainLoop() {
+            throttle -= 1.0;
+            blast((char *) frame);
+            cout << "Blast frame " << frameNumber << endl;
+        }
+};
+
+class FrameCoalescerApp : public App, public FrameCoalescer {
+    protected:
+        uint16_t *frame;
+        
+    public:
+        FrameCoalescerApp(UDP &iUDP, uint16_t *iFrame)
+        : FrameCoalescer(iUDP, 640 * sizeof(uint16_t), 400), frame(iFrame) { }
+        
+        virtual void mainLoop() {
+            coalesce((char *) frame);
+        }
+        
+        virtual void frameStarted() {
+        
+        }
+        virtual void frameComplete() {
+        
+        }
+};
+
 int main(int argc, char **argv) {
     vector<string> args;
     for(int i = 1; i < argc; i++) {
         args.push_back(string(argv[i]));
     }
+    
+    UDP udp;
+    bool sender = false;
+    
+    string localHost("127.0.0.1");
+    uint16_t localPort = 3060;
+    string remoteHost("127.0.0.1");
+    uint16_t remotePort = 3060;
+    
+    for(int i = 0; i < args.size(); i++) {
+        if(args[i] == "-r" && (args.size() > i+2)) {
+            cout << "Remote: " << args[i+1] << ":" << args[i+2] << endl;
+            remoteHost = args[i+1];
+            remotePort = stoi(args[i+2]);
+            i += 2;
+        }
+        if(args[i] == "-b" && (args.size() > i+2)) {
+            cout << "Local: " << args[i+1] << ":" << args[i+2] << endl;
+            localHost = args[i+1];
+            localPort = stoi(args[i+2]);
+            i += 2;
+        }
+        if(args[i] == "-s") {
+            cout << "Sender" << endl;
+            sender = true;
+        }
+    }
+    
+    udp.setLocal(localHost, localPort);
+    udp.setRemote(remoteHost, remotePort);
+    
+    uint16_t *theFrame = new uint16_t[640 * 400];
+    
+    if(sender) {
+        FrameBlasterApp app(udp, theFrame);
+        app.run();
+    } else {
+        FrameCoalescerApp app(udp, theFrame);
+        app.run();
+    }
+    
+    /*
     UDPApp app(args);
-
-    app.run();
-
+    */
+    
+    delete [] theFrame;
+    
     return 0;
 }

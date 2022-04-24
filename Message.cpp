@@ -4,12 +4,12 @@
 
 using namespace sb;
 
-Message::Message(size_t iLen)
+Message::Message(uint32_t iLen)
 : Object(), buf(nullptr), length(iLen), noDelete(false) {
     buf = new uint8_t[iLen];
 }
 
-Message::Message(uint8_t *iBuf, size_t iLen)
+Message::Message(uint8_t *iBuf, uint32_t iLen)
 : Object(), buf(iBuf), length(iLen), noDelete(true) { }
 
 Message::Message(Message &&iToMove)

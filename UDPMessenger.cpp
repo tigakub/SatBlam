@@ -28,13 +28,13 @@ bool UDPMessenger::start() {
 void UDPMessenger::stop() {
     alive = false;
     if(sendThread) {
-        sendSem.signal();
+        sendSem--;
         sendThread->join();
         delete sendThread;
         sendThread = nullptr;
     }
     if(recvThread) {
-        recvSem.signal();
+        recvSem++;
         recvThread->join();
         delete recvThread;
         recvThread = nullptr;
@@ -44,7 +44,7 @@ void UDPMessenger::stop() {
 
 void UDPMessenger::sendLoop() {
     while(alive) {
-        sendSem.wait();
+        sendSem--;
         if(sendQueue.size()) {
             MessagePtr currentMsg(deqSendMsg());
             Message &msg = *currentMsg;
@@ -65,7 +65,7 @@ void UDPMessenger::sendLoop() {
 
 void UDPMessenger::recvLoop() {
     while(alive) {
-        recvSem.wait();
+        recvSem--;
         if(recvQueue.size()) {
             MessagePtr currentMsg(deqRecvMsg());
             Message &msg = *currentMsg;
@@ -94,13 +94,13 @@ void UDPMessenger::recvLoop() {
 void UDPMessenger::queueForSend(Message *iMsg) {
     Grab g(sendMutex);
     sendQueue.push_back(MessagePtr(iMsg));
-    sendSem.signal();
+    sendSem++;
 }
 
 void UDPMessenger::queueForRecv(Message *iMsg) {
     Grab g(recvMutex);
     recvQueue.push_back(MessagePtr(iMsg));
-    recvSem.signal();
+    recvSem++;
 }
 
 MessagePtr UDPMessenger::deqSendMsg() {
