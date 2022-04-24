@@ -164,22 +164,26 @@ int main(int argc, char **argv) {
     uint16_t remotePort = 3060;
     
     for(int i = 0; i < args.size(); i++) {
-        if(args[i] == "-r" && (args.size() > i+2)) {
+        if(args[i] == "--remote" && (args.size() > i+2)) {
             cout << "Remote: " << args[i+1] << ":" << args[i+2] << endl;
             remoteHost = args[i+1];
             remotePort = stoi(args[i+2]);
             i += 2;
         }
-        if(args[i] == "-b" && (args.size() > i+2)) {
+        if(args[i] == "--local" && (args.size() > i+2)) {
             cout << "Local: " << args[i+1] << ":" << args[i+2] << endl;
             localHost = args[i+1];
             localPort = stoi(args[i+2]);
             i += 2;
         }
-        if(args[i] == "-s") {
-            cout << "Sender" << endl;
+        if(args[i] == "--blast") {
+            cout << "FrameBlaster" << endl;
             sender = true;
         }
+    }
+    
+    if(!sender) {
+        cout << "FrameCoalescer" << endl;
     }
     
     udp.setLocal(localHost, localPort);
