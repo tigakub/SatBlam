@@ -142,10 +142,10 @@ class FrameCoalescerApp : public App, public FrameCoalescer {
         }
         
         virtual void frameStarted() {
-        
+            cout << "Frame " << frameNumber << " started" << endl;
         }
         virtual void frameComplete() {
-        
+            cout << "Frame " << frameNumber << " complete" << endl;
         }
 };
 
